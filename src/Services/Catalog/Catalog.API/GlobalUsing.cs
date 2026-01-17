@@ -1,0 +1,9 @@
+﻿global using Carter;
+global using Marten;
+global using Mapster;
+global using Cortex.Mediator;
+global using FluentValidation;
+global using Catalog.API.Models;
+global using Cortex.Mediator.Queries;
+global using Cortex.Mediator.Commands;
+global using Cortex.Mediator.DependencyInjection;
