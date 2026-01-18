@@ -7,13 +7,30 @@ public record UpdateProductCommand(Guid Id, string Name, List<string> Categories
 
 public record UpdateProductResult(bool IsSuccess);
 
+public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
+{
+    public UpdateProductCommandValidator()
+    {
+        RuleFor(x => x.Id)
+            .NotEmpty()
+            .WithMessage("Product ID is required.");
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .WithMessage("Product name is required.")
+            .Length(2,150).WithMessage("Product name must be between 2 and 100 characters.");
+        RuleFor(x => x.Price)
+            .GreaterThan(0)
+            .WithMessage("Price must be greater than zero.");
+    }
+}
+
 internal class UpdateProductHandler(IDocumentSession session) 
     : ICommandHandler<UpdateProductCommand, UpdateProductResult>
 {
     public async Task<UpdateProductResult> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
     {
         var product = await session.LoadAsync<Product>(command.Id, cancellationToken) 
-            ?? throw new ProductNotFoundException();
+            ?? throw new ProductNotFoundException(command.Id);
 
         product.Name = command.Name;
         product.Categories = command.Categories;
