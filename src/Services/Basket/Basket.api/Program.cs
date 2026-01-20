@@ -14,17 +14,14 @@ builder.Services.AddCortexMediator(builder.Configuration, [typeof(Program)],
 );
 builder.Services.AddMarten(options =>
 {
-    options.Connection(builder.Configuration.GetConnectionString("ProductCatalogDatabase")!);
+    options.Connection(builder.Configuration.GetConnectionString("BasketDatabase")!);
+    options.Schema.For<ShoppingCart>().Identity(x => x.UserName);
 }).UseLightweightSessions();
-
-if(builder.Environment.IsDevelopment())
-    builder.Services.InitializeMartenWith<CataloginitialData>();
-
+builder.Services.AddScoped<IBasketRepository, BasketRepository>();
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 builder.Services.AddHealthChecks()
-    .AddNpgSql(builder.Configuration.GetConnectionString("ProductCatalogDatabase")!, 
+    .AddNpgSql(builder.Configuration.GetConnectionString("BasketDatabase")!,
         healthQuery: "select 'Current TimeStamp: ' || CURRENT_TIMESTAMP;");
-
 var app = builder.Build();
 
 app.MapCarter();
@@ -33,4 +30,5 @@ app.UseHealthChecks("/health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
+
 app.Run();
